@@ -12,11 +12,14 @@ function Manage() {
     email: "",
     salary: "",
   });
+  const navigate = useNavigate()
 
   // ✅ LIVE LOGGING (IMPORTANT)
   useEffect(() => {
     console.log("LIVE DATA:", userData);
   }, [userData]);
+
+  
 
   // ✅ EDIT MODE
   useEffect(() => {

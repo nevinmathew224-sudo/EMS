@@ -10,7 +10,7 @@ function Home() {
           marginTop: "70px", // space for fixed header
           height: "450px",
           background:
-            'url("https://www.shutterstock.com/image-photo/team-young-european-man-latin-600nw-2682189889.jpg")',
+            'url("https://img.freepik.com/free-photo/business-people-meeting_53876-15178.jpg")',
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -51,7 +51,7 @@ function Home() {
             {/* Image placeholder or content */}
             <img
               className="img-fluid"
-              src="https://png.pngtree.com/png-clipart/20230927/original/pngtree-man-in-shirt-smiles-and-gives-thumbs-up-to-show-approval-png-image_13146336.png"
+              src="https://png.pngtree.com/png-clipart/20250428/original/pngtree-smiling-young-man-giving-a-thumbs-up-dressed-png-image_20896561.png"
               alt="profile"
             />
           </div>

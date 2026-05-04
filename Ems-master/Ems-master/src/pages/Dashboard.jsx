@@ -1,7 +1,33 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { deleteALLUsersAPI, getALLUsersAPI } from "../services/allAPI";
 
 function Dashboard() {
+const[allUsers,setALLusers] = useState([])
+console.log(allUsers);
+
+useEffect(()=>{
+  getUsers()
+},[])
+
+const getUsers = async ()=>{
+  try{
+    const result = await getALLUsersAPI()
+    if (result.status==200){
+      setALLusers(result.data)
+    }
+
+  }catch(err){
+    console.log(err);
+    
+  }
+}
+const removeUser = async (id)=>{
+  const result = await deleteALLUsersAPI(id)
+  getUsers()
+}
+
+
   return (
     <div className="container">
       {/* Title Section */}
@@ -29,26 +55,31 @@ function Dashboard() {
           </thead>
 
           <tbody>
-            <tr>
-              <td>1</td>
-              <td>Max_Power</td>
-              <td>max@example.com</td>
-              <td>$5000</td>
+          {
+            allUsers?.map(user=>(
+              <tr key={user?._id}>
+              <td>{user._id}</td>
+              <td>{user?.username}</td>
+              <td>{user?.email}</td>
+              <td>{user?.salary}</td>
 
               <td>
                 <div className="d-flex gap-3">
                   {/* ✅ EDIT */}
-                  <Link to="/edit/1" className="btn btn-outline-warning btn-sm">
+                  <Link to= {`/edit/${user?._id}`} className="btn btn-outline-warning btn-sm">
                     <i className="fa-solid fa-pen-to-square"></i>
                   </Link>
 
                   {/* DELETE */}
-                  <button className="btn btn-outline-danger btn-sm">
+                  <button onClick={()=>removeUser(user?._id)}  className="btn btn-outline-danger btn-sm">
                     <i className="fa-solid fa-trash"></i>
                   </button>
                 </div>
               </td>
             </tr>
+            ))
+
+          }
           </tbody>
         </table>
       </div>
