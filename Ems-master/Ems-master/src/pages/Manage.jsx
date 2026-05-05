@@ -1,52 +1,85 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Form from "react-bootstrap/Form";
 import { useParams, useNavigate } from "react-router-dom";
+import { addUserAPI, editUserAPI, getAllUsersAPI } from "../services/allAPI";
+
+const getUserId = (user) => user.id || user._id;
 
 function Manage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // 🔥 SAME AS TEACHER (userData name)
   const [userData, setUserData] = useState({
     username: "",
     email: "",
     salary: "",
   });
-  const navigate = useNavigate()
+  const [errorMessage, setErrorMessage] = useState("");
 
-  // ✅ LIVE LOGGING (IMPORTANT)
   useEffect(() => {
-    console.log("LIVE DATA:", userData);
-  }, [userData]);
+    const getSelectedUser = async () => {
+      if (!id) {
+        return;
+      }
 
-  
+      try {
+        const result = await getAllUsersAPI();
+        if (result.status >= 200 && result.status < 300) {
+          const selectedUser = result.data.find(
+            (user) => String(getUserId(user)) === id,
+          );
 
-  // ✅ EDIT MODE
-  useEffect(() => {
-    if (id) {
-      setUserData({
-        username: "Max_Power",
-        email: "max@example.com",
-        salary: "5000",
-      });
-    }
+          if (selectedUser) {
+            setUserData({
+              username: selectedUser.username ?? "",
+              email: selectedUser.email ?? "",
+              salary: selectedUser.salary ?? "",
+            });
+          }
+        }
+      } catch (err) {
+        console.log("Error fetching selected user:", err);
+      }
+    };
+
+    getSelectedUser();
   }, [id]);
 
-  // ✅ SUBMIT
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage("");
 
-    if (id) {
-      console.log("UPDATED USER:", userData);
-    } else {
-      console.log("ADDED USER:", userData);
+    try {
+      if (!id) {
+        const usersResult = await getAllUsersAPI();
+        if (usersResult.status >= 200 && usersResult.status < 300) {
+          const userAlreadyExists = usersResult.data.some(
+            (user) =>
+              user.email?.toLowerCase() === userData.email.trim().toLowerCase(),
+          );
+
+          if (userAlreadyExists) {
+            setErrorMessage("User already exists");
+            return;
+          }
+        }
+      }
+
+      const result = id
+        ? await editUserAPI(id, userData)
+        : await addUserAPI(userData);
+
+      if (result.status >= 200 && result.status < 300) {
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      console.log("Error saving user:", err);
+      setErrorMessage("Something went wrong. Please try again.");
     }
-
-    navigate("/dashboard");
   };
 
-  // ✅ RESET
   const handleReset = () => {
+    setErrorMessage("");
     setUserData({
       username: "",
       email: "",
@@ -65,9 +98,10 @@ function Manage() {
             type="text"
             placeholder="Username"
             value={userData.username}
-            onChange={(e) =>
-              setUserData({ ...userData, username: e.target.value })
-            }
+            onChange={(e) => {
+              setErrorMessage("");
+              setUserData({ ...userData, username: e.target.value });
+            }}
           />
         </div>
 
@@ -77,9 +111,10 @@ function Manage() {
             type="email"
             placeholder="Email"
             value={userData.email}
-            onChange={(e) =>
-              setUserData({ ...userData, email: e.target.value })
-            }
+            onChange={(e) => {
+              setErrorMessage("");
+              setUserData({ ...userData, email: e.target.value });
+            }}
           />
         </div>
 
@@ -89,11 +124,14 @@ function Manage() {
             type="number"
             placeholder="Salary"
             value={userData.salary}
-            onChange={(e) =>
-              setUserData({ ...userData, salary: e.target.value })
-            }
+            onChange={(e) => {
+              setErrorMessage("");
+              setUserData({ ...userData, salary: e.target.value });
+            }}
           />
         </div>
+
+        {errorMessage && <p className="text-danger fw-bold">{errorMessage}</p>}
 
         <div className="mb-5">
           <button type="submit" className="btn btn-info me-3">

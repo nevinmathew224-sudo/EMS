@@ -1,40 +1,42 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { deleteALLUsersAPI, getALLUsersAPI } from "../services/allAPI";
+import { deleteUserAPI, getAllUsersAPI } from "../services/allAPI";
 
 function Dashboard() {
-const[allUsers,setALLusers] = useState([])
-console.log(allUsers);
+  const [allUsers, setAllUsers] = useState([]);
 
-useEffect(()=>{
-  getUsers()
-},[])
+  const getUserId = (user) => user.id || user._id;
 
-const getUsers = async ()=>{
-  try{
-    const result = await getALLUsersAPI()
-    if (result.status==200){
-      setALLusers(result.data)
+  useEffect(() => {
+    const getUsers = async () => {
+      try {
+        const result = await getAllUsersAPI();
+        if (result.status >= 200 && result.status < 300) {
+          setAllUsers(result.data);
+        }
+      } catch (err) {
+        console.log("Error fetching users:", err);
+      }
+    };
+
+    getUsers();
+  }, []);
+
+  const handleDelete = async (id) => {
+    try {
+      const result = await deleteUserAPI(id);
+      if (result.status >= 200 && result.status < 300) {
+        setAllUsers(allUsers.filter((user) => getUserId(user) !== id));
+      }
+    } catch (err) {
+      console.log("Error deleting user:", err);
     }
-
-  }catch(err){
-    console.log(err);
-    
-  }
-}
-const removeUser = async (id)=>{
-  const result = await deleteALLUsersAPI(id)
-  getUsers()
-}
-
+  };
 
   return (
     <div className="container">
-      {/* Title Section */}
       <div className="d-flex justify-content-between mt-5 align-items-center">
         <h1>Welcome ADMIN</h1>
-
-        {/* ✅ ADD USER */}
         <Link to="/add" className="btn btn-primary">
           + ADD USER
         </Link>
@@ -55,31 +57,42 @@ const removeUser = async (id)=>{
           </thead>
 
           <tbody>
-          {
-            allUsers?.map(user=>(
-              <tr key={user?._id}>
-              <td>{user._id}</td>
-              <td>{user?.username}</td>
-              <td>{user?.email}</td>
-              <td>{user?.salary}</td>
+            {allUsers.length > 0 ? (
+              allUsers.map((user) => {
+                const userId = getUserId(user);
 
-              <td>
-                <div className="d-flex gap-3">
-                  {/* ✅ EDIT */}
-                  <Link to= {`/edit/${user?._id}`} className="btn btn-outline-warning btn-sm">
-                    <i className="fa-solid fa-pen-to-square"></i>
-                  </Link>
-
-                  {/* DELETE */}
-                  <button onClick={()=>removeUser(user?._id)}  className="btn btn-outline-danger btn-sm">
-                    <i className="fa-solid fa-trash"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-            ))
-
-          }
+                return (
+                  <tr key={userId}>
+                    <td className="text-break">{userId}</td>
+                    <td>{user.username}</td>
+                    <td>{user.email}</td>
+                    <td>${user.salary}</td>
+                    <td>
+                      <div className="d-flex gap-3">
+                        <Link
+                          to={`/edit/${userId}`}
+                          className="btn btn-outline-warning btn-sm"
+                        >
+                          <i className="fa-solid fa-pen-to-square"></i>
+                        </Link>
+                        <button
+                          className="btn btn-outline-danger btn-sm"
+                          onClick={() => handleDelete(userId)}
+                        >
+                          <i className="fa-solid fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan="5" className="text-center">
+                  No users found
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

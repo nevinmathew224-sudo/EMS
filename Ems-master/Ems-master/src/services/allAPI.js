@@ -1,23 +1,20 @@
 import axios from "axios";
 
-const serverURL ="http://localhost:3001"
+const serverURL = "https://ems-server-x7cj.onrender.com";
 
-export const getALLUsersAPI = async ()=>{
-    return await axios.get(`${serverURL}/users`)
-}
-
-
-export const addUsersAPI = async (userData)=>{
-    return await axios.post(`${serverURL}/add`,userData)
-}
-
-
-export const editALLUsersAPI = async (userID,userData)=>{
-    return await axios.put(`${serverURL}/users/$(userID)`,userData)
-}
-
-
-export const deleteALLUsersAPI = async (userID)=>{
-    return await axios.delete(`${serverURL}/users/${userID}`)
-}
-
+// get all users api : called by dashboard component when it opens
+export const getAllUsersAPI = async () => {
+  return await axios.get(`${serverURL}/users`);
+};
+// add user api : called by manage component when add button is pressed
+export const addUserAPI = async (userData) => {
+  return await axios.post(`${serverURL}/user/add`, userData);
+};
+// edit user api : called by manage component when edit button is pressed
+export const editUserAPI = async (userId, userData) => {
+  return await axios.put(`${serverURL}/users/${userId}`, userData);
+};
+// delete user api : called by dashboard component when delete button is pressed
+export const deleteUserAPI = async (userId) => {
+  return await axios.delete(`${serverURL}/users/${userId}`);
+};
